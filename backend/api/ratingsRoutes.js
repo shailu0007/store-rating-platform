@@ -13,4 +13,5 @@ ratingsRoutes.put('/:storeId/ratings/:ratingId', authenticate, ratingController.
 
 ratingsRoutes.delete('/:storeId/ratings/:ratingId', authenticate, authorizeRole(['SYSTEM_ADMIN']), ratingController.remove);
 
+
 export default ratingsRoutes;
