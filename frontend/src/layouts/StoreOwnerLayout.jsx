@@ -6,7 +6,9 @@ import Footer from "../components/common/Footer";
 import { useAuth } from "../context/AuthContext";
 
 const StoreOwnerLayout = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, loading } = useAuth();
+
+  if (loading) return <div>Checking session...</div>; 
 
   if (!currentUser) return <Navigate to="/auth/login" replace />;
   if (currentUser.role !== "STORE_OWNER") return <Navigate to="/unauthorized" replace />;

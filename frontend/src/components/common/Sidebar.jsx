@@ -1,4 +1,3 @@
-// src/components/common/Sidebar.jsx
 import React, { useCallback, useMemo, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
@@ -40,11 +39,10 @@ const Sidebar = () => {
 
   const handleToggle = useCallback(() => setCollapsed((s) => !s), []);
   const handleLogout = useCallback(async () => {
-    await logout({ redirect: false }); // stay on page, we'll navigate manually
+    await logout({ redirect: false }); 
     navigate('/auth/login');
   }, [logout, navigate]);
 
-  // Memoize sections so rerenders aren't noisy
   const adminLinks = useMemo(() => ([
     { to: '/admin', icon: <BarChart2 size={16} />, label: 'Admin Dashboard' },
     { to: '/admin/manage-users', icon: <Users size={16} />, label: 'Manage Users' },

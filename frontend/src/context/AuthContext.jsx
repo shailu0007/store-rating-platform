@@ -23,7 +23,6 @@ const readStoredToken = () => {
   }
 };
 
-// helper to accept either axios response or already-unwrapped data
 const normalizeApiResponse = (res) => {
   if (!res) return null;
   return res && typeof res === 'object' && 'data' in res ? res.data : res;
@@ -31,29 +30,26 @@ const normalizeApiResponse = (res) => {
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(readStoredUser);
-  const [loading, setLoading] = useState(true); // start true until we've checked token
+  const [loading, setLoading] = useState(true); 
 
-  // Set axios auth header and optionally refresh user on mount
   useEffect(() => {
     const init = async () => {
       const token = readStoredToken();
       if (token) {
-        // if axiosInstance is a created instance, set default header on it
         axios.defaults.headers = axios.defaults.headers || {};
         axios.defaults.headers.Authorization = `Bearer ${token}`;
 
-        // try to refresh / validate token & get user
         try {
           await refreshUser();
         } catch (e) {
-          // ignore - refreshUser will clear user if invalid
+
         }
       }
       setLoading(false);
     };
 
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const saveUserAndToken = (user, token) => {
@@ -100,7 +96,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await authApi.logout().catch(() => {});
     } catch (e) {
-      // ignore
+     
     }
     clearUser();
     if (redirect) window.location.assign(redirectTo);
@@ -126,7 +122,7 @@ export const AuthProvider = ({ children }) => {
       }
       return data;
     } catch (e) {
-      // token invalid or network error -> clear local auth
+     
       clearUser();
       return null;
     }

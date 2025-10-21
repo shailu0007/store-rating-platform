@@ -1,13 +1,10 @@
-// src/router/AppRouter.jsx
 import React from "react";
 import { createBrowserRouter } from "react-router-dom";
 
-// layouts
 import UserLayout from "../layouts/UserLayout.jsx";
 import AdminLayout from "../layouts/AdminLayout.jsx";
 import StoreOwnerLayout from "../layouts/StoreOwnerLayout.jsx";
 
-// pages (ensure these files exist and default-export components)
 import StoreList from "../pages/user/StoreList.jsx";
 import StoreDetails from "../pages/user/StoreDetails.jsx";
 
@@ -16,19 +13,17 @@ import Signup from "../pages/auth/Signup.jsx";
 import NotFound from "../pages/error/NotFound.jsx";
 import Unauthorized from "../pages/error/Unauthorized.jsx";
 
-// admin pages
 import Dashboard from "../pages/admin/Dashboard.jsx";
 import ManageStores from "../pages/admin/ManageStores.jsx";
 import ManageUsers from "../pages/admin/ManageUsers.jsx";
 
-// owner pages
 import OwnerDashboard from "../pages/owner/OwnerDashboard.jsx";
 
-// route helpers
 import ProtectedRoute from "../components/common/ProtectedRoute.jsx";
 import PublicRoute from "../components/common/PublicRoute.jsx";
 import AddUser from "../pages/admin/AddUser.jsx";
 import AddStore from "../pages/admin/AddStore.jsx";
+import OwnerAddStore from "../pages/owner/AddStore.jsx";
 
 const router = createBrowserRouter([
   {
@@ -64,8 +59,7 @@ const router = createBrowserRouter([
     ],
   },
 
-  
-  // Admin section
+
   {
     path: "/admin",
     element: (
@@ -82,7 +76,6 @@ const router = createBrowserRouter([
     ],
   },
 
-  // Owner section
   {
     path: "/owner",
     element: (
@@ -93,6 +86,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <OwnerDashboard /> },
       { path: "dashboard", element: <OwnerDashboard /> },
+      { path: 'add-store', element: <OwnerAddStore /> },
     ],
   },
 ]);

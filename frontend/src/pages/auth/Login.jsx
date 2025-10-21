@@ -19,26 +19,24 @@ const LoginPage = () => {
 
   const info = location.state?.info || '';
 
-  const handleLogin = async (payload) => {
-    setErrorMessage('');
-    setLoading(true);
-    try {
-      const res = await login(payload); 
-      const user = res?.user ?? res?.data?.user ?? res?.userData ?? null;
-      const role = (user && user.role) ? user.role : (res?.role ?? null);
+const handleLogin = async (payload) => {
+  setErrorMessage('');
+  setLoading(true);
+  try {
+    const res = await login(payload); 
+    const user = res?.user ?? res?.data?.user ?? res?.userData ?? null;
+    const role = user?.role ?? res?.role ?? null;
 
-      const dest = roleToPath[role] || '/';
-      console.log(dest);
-      navigate(dest, { replace: true });
-    } catch (err) {
-      console.error('Login failed', err);
-      const message = err?.response?.data?.message || err?.message || 'Login failed';
-      setErrorMessage(message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+    const dest = location.state?.from?.pathname || roleToPath[role] || '/';
+    console.log(dest)
+    navigate(dest, { replace: true });
+  } catch (err) {
+    const message = err?.response?.data?.message || err?.message || 'Login failed';
+    setErrorMessage(message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50">

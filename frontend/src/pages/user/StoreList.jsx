@@ -1,17 +1,18 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { createColumnHelper } from '@tanstack/react-table';
 import { Link } from 'react-router-dom';
 import Table from '../../components/common/Table';
-import axios from '../../config/axiosInstance';
 import Loader from '../../components/common/Loader';
 import storeApi from '../../api/storeApi';
 
 const colHelper = createColumnHelper();
 
 const StoreList = () => {
+  const [rows, setRows] = useState([]);
   const [total, setTotal] = useState(0);
-  const [loadingFirst, setLoadingFirst] = useState(false);
+  const [loadingFirst, setLoadingFirst] = useState(true); // start with true for initial load
 
+  // Table columns
   const columns = useMemo(() => [
     colHelper.accessor('name', {
       header: 'Store',
@@ -26,7 +27,7 @@ const StoreList = () => {
       header: 'Avg',
       cell: info => {
         const v = info.getValue();
-        return v ? v.toFixed ? v.toFixed(1) : v : '—';
+        return v ? (v.toFixed ? v.toFixed(1) : v) : '—';
       }
     }),
     colHelper.display({
@@ -48,36 +49,45 @@ const StoreList = () => {
     })
   ], []);
 
-const [rows, setRows] = useState([]);
+  // Fetch data function
+  const fetchData = useCallback(async ({ pageIndex, pageSize, globalFilter }) => {
+    try {
+      const res = await storeApi.list({
+        page: pageIndex + 1,
+        limit: pageSize,
+        q: globalFilter,
+      });
 
-const fetchData = useCallback(async ({ pageIndex, pageSize, globalFilter }) => {
-  setLoadingFirst(true);
-  try {
-    const res = await storeApi.list({
-      page: pageIndex + 1,
-      limit: pageSize,
-      q: globalFilter,
-    });
+      const payload = res?.data ?? res ?? {};
+      const data = payload.data ?? payload.rows ?? [];
+      const totalCount = payload.total ?? payload.totalCount ?? data.length;
 
-    const payload = res?.data ?? res ?? {};
-    const data = payload.data ?? payload.rows ?? [];
-    const totalCount = payload.total ?? payload.totalCount ?? data.length;
+      const normalized = data.map(r => ({
+        ...r,
+        avg_rating: r.avg_rating ?? r.averageRating ?? r.avgRating ?? r.rating,
+      }));
 
-    const normalized = data.map(r => ({
-      ...r,
-      avg_rating: r.avg_rating ?? r.averageRating ?? r.avgRating ?? r.rating,
-    }));
+      setRows(normalized);
+      setTotal(totalCount);
 
-    setRows(normalized); // ✅ set fetched rows
-    setTotal(totalCount);
-    return { rows: normalized, totalCount };
-  } catch (err) {
-    console.error("Failed to fetch stores", err);
-    return { rows: [], totalCount: 0 };
-  } finally {
-    setLoadingFirst(false);
-  }
-}, []);
+      return { rows: normalized, totalCount };
+    } catch (err) {
+      console.error("Failed to fetch stores", err);
+      setRows([]);
+      setTotal(0);
+      return { rows: [], totalCount: 0 };
+    }
+  }, []);
+
+  // Initial fetch on mount
+  useEffect(() => {
+    const loadInitialData = async () => {
+      setLoadingFirst(true);
+      await fetchData({ pageIndex: 0, pageSize: 10, globalFilter: '' });
+      setLoadingFirst(false);
+    };
+    loadInitialData();
+  }, [fetchData]);
 
   return (
     <div>
@@ -86,18 +96,17 @@ const fetchData = useCallback(async ({ pageIndex, pageSize, globalFilter }) => {
       </div>
 
       {loadingFirst ? (
-  <Loader />
-) : (
-  <Table
-    columns={columns}
-    data={rows}          
-    serverSide
-    fetchData={fetchData}
-    totalCount={total}
-    initialPageSize={10}
-  />
-)}
-
+        <Loader />
+      ) : (
+        <Table
+          columns={columns}
+          data={rows}
+          serverSide
+          fetchData={fetchData}
+          totalCount={total}
+          initialPageSize={10}
+        />
+      )}
     </div>
   );
 };
