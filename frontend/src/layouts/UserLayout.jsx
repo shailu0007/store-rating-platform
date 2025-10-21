@@ -8,7 +8,7 @@ const UserLayout = () => {
   const { currentUser, logout } = useAuth();
 
   if (!currentUser) return <Navigate to="/auth/login" replace />;
-  if (currentUser.role !== "NORMAL_USER") return <Navigate to="/unauthorized" replace />;
+  // if (currentUser.role !== "NORMAL_USER") return <Navigate to="/unauthorized" replace />;
 
   return (
     <div className="min-h-screen flex flex-col">

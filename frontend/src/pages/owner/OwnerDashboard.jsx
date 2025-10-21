@@ -26,36 +26,31 @@ const OwnerDashboard = () => {
   const [store, setStore] = useState(null);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const loadOwnerStore = async () => {
-      if (!currentUser) {
-        setError('No logged in user');
-        setLoading(false);
-        return;
-      }
+useEffect(() => {
+  if (!currentUser) return; // wait until user is actually loaded
 
-      setLoading(true);
-      setError('');
-      try {
-        const res = await storeApi.list({ ownerId: currentUser.id, limit: 1 });
+  const loadOwnerStore = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await storeApi.list({ ownerId: currentUser.id, limit: 1 });
 
-        const payload = res?.data ?? {};
-        const rows = payload.data ?? payload.rows ?? (Array.isArray(payload) ? payload : []);
-        const first = rows[0] ?? null;
-        if (!first) {
-          setError('No store found for this owner yet.');
-        }
-        setStore(first);
-      } catch (err) {
-        console.error('Failed to fetch owner store', err);
-        setError(err?.response?.data?.message || 'Failed to load store');
-      } finally {
-        setLoading(false);
-      }
-    };
+      const payload = res?.data ?? {};
+      const rows = payload.data ?? payload.rows ?? (Array.isArray(payload) ? payload : []);
+      const first = rows[0] ?? null;
+      if (!first) setError('No store found for this owner yet.');
+      setStore(first);
+    } catch (err) {
+      console.error('Failed to fetch owner store', err);
+      setError(err?.response?.data?.message || 'Failed to load store');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    loadOwnerStore();
-  }, [currentUser]);
+  loadOwnerStore();
+}, [currentUser?.id]);
+
 
   const columns = useMemo(() => [
     colHelper.accessor('userName', { header: 'User', cell: info => info.getValue() || (info.row.original.user?.name ?? 'User') }),

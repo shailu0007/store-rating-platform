@@ -10,6 +10,7 @@ const roleToPath = {
 };
 
 const LoginPage = () => {
+  console.log("login")
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,6 +28,7 @@ const LoginPage = () => {
       const role = (user && user.role) ? user.role : (res?.role ?? null);
 
       const dest = roleToPath[role] || '/';
+      console.log(dest);
       navigate(dest, { replace: true });
     } catch (err) {
       console.error('Login failed', err);

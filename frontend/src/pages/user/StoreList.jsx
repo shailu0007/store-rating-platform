@@ -48,26 +48,36 @@ const StoreList = () => {
     })
   ], []);
 
-  const fetchData = useCallback(async ({ pageIndex, pageSize, globalFilter }) => {
-    setLoadingFirst(true);
-    try {
-      const res = await storeApi.list({ page: pageIndex + 1, limit: pageSize, q: globalFilter });
-      const payload = res?.data ?? {};
-      const rows = payload.data ?? payload.rows ?? (Array.isArray(payload) ? payload : []);
-      const totalCount = payload.total ?? payload.totalCount ?? rows.length;
-      const normalized = rows.map(r => ({
-        ...r,
-        avg_rating: r.avg_rating ?? r.averageRating ?? r.avgRating ?? r.rating
-      }));
-      setTotal(totalCount);
-      return { rows: normalized, totalCount };
-    } catch (err) {
-      console.error('Failed to fetch stores', err);
-      return { rows: [], totalCount: 0 };
-    } finally {
-      setLoadingFirst(false);
-    }
-  }, []);
+const [rows, setRows] = useState([]);
+
+const fetchData = useCallback(async ({ pageIndex, pageSize, globalFilter }) => {
+  setLoadingFirst(true);
+  try {
+    const res = await storeApi.list({
+      page: pageIndex + 1,
+      limit: pageSize,
+      q: globalFilter,
+    });
+
+    const payload = res?.data ?? res ?? {};
+    const data = payload.data ?? payload.rows ?? [];
+    const totalCount = payload.total ?? payload.totalCount ?? data.length;
+
+    const normalized = data.map(r => ({
+      ...r,
+      avg_rating: r.avg_rating ?? r.averageRating ?? r.avgRating ?? r.rating,
+    }));
+
+    setRows(normalized); // ✅ set fetched rows
+    setTotal(totalCount);
+    return { rows: normalized, totalCount };
+  } catch (err) {
+    console.error("Failed to fetch stores", err);
+    return { rows: [], totalCount: 0 };
+  } finally {
+    setLoadingFirst(false);
+  }
+}, []);
 
   return (
     <div>
@@ -75,16 +85,19 @@ const StoreList = () => {
         <h1 className="text-2xl font-semibold">Stores</h1>
       </div>
 
-      {loadingFirst ? <Loader /> : (
-        <Table
-          columns={columns}
-          data={[]}
-          serverSide
-          fetchData={fetchData}
-          totalCount={total}
-          initialPageSize={10}
-        />
-      )}
+      {loadingFirst ? (
+  <Loader />
+) : (
+  <Table
+    columns={columns}
+    data={rows}          
+    serverSide
+    fetchData={fetchData}
+    totalCount={total}
+    initialPageSize={10}
+  />
+)}
+
     </div>
   );
 };

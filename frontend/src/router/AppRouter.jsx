@@ -1,98 +1,99 @@
+// src/router/AppRouter.jsx
 import React from "react";
 import { createBrowserRouter } from "react-router-dom";
 
-import AdminLayout from "../layouts/AdminLayout";
-import UserLayout from "../layouts/UserLayout";
-import StoreOwnerLayout from "../layouts/StoreOwnerLayout";
+// layouts
+import UserLayout from "../layouts/UserLayout.jsx";
+import AdminLayout from "../layouts/AdminLayout.jsx";
+import StoreOwnerLayout from "../layouts/StoreOwnerLayout.jsx";
 
-import Login from "../pages/auth/Login";
-import Signup from "../pages/auth/Signup";
-import StoreList from "../pages/user/StoreList";
-import StoreDetails from "../pages/user/StoreDetails";
-import AdminDashboard from "../pages/admin/Dashboard";
-import ManageUsers from "../pages/admin/ManageUsers";
-import OwnerDashboard from "../pages/owner/OwnerDashboard";
-import UpdatePassword from "../pages/user/UpdatePassword";
-import Unauthorized from "../pages/error/Unauthorized";
-import NotFound from "../pages/error/NotFound";
+// pages (ensure these files exist and default-export components)
+import StoreList from "../pages/user/StoreList.jsx";
+import StoreDetails from "../pages/user/StoreDetails.jsx";
 
-import ProtectedRoute from "../components/common/ProtectedRoute";
+import Login from "../pages/auth/Login.jsx";
+import Signup from "../pages/auth/Signup.jsx";
+import NotFound from "../pages/error/NotFound.jsx";
+import Unauthorized from "../pages/error/Unauthorized.jsx";
+
+// admin pages
+import Dashboard from "../pages/admin/Dashboard.jsx";
+import ManageStores from "../pages/admin/ManageStores.jsx";
+import ManageUsers from "../pages/admin/ManageUsers.jsx";
+
+// owner pages
+import OwnerDashboard from "../pages/owner/OwnerDashboard.jsx";
+
+// route helpers
+import ProtectedRoute from "../components/common/ProtectedRoute.jsx";
+import PublicRoute from "../components/common/PublicRoute.jsx";
+import AddUser from "../pages/admin/AddUser.jsx";
+import AddStore from "../pages/admin/AddStore.jsx";
 
 const router = createBrowserRouter([
   {
-    path: "/auth/login",
-    element: <Login />,
+    path: "/",
+    element: <UserLayout />,
+    children: [
+      { index: true, element: <StoreList /> },
+      { path: "stores", element: <StoreList /> },
+      { path: "stores/:id", element: <StoreDetails /> },
+      { path: "unauthorized", element: <Unauthorized /> },
+      { path: "*", element: <NotFound /> },
+    ],
   },
-  {
-    path: "/auth/signup",
-    element: <Signup />,
-  },
-
-  {
-    element: (
-      <ProtectedRoute allowedRoles={["NORMAL_USER"]}>
-        <UserLayout />
-      </ProtectedRoute>
-    ),
+   {
+    path: "/auth",
     children: [
       {
-        path: "/",
-        element: <StoreList />,
+        path: "login",
+        element: (
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        ),
       },
       {
-        path: "/stores/:id",
-        element: <StoreDetails />,
-      },
-      {
-        path: "/update-password",
-        element: <UpdatePassword />,
+        path: "signup",
+        element: (
+          <PublicRoute>
+            <Signup />
+          </PublicRoute>
+        ),
       },
     ],
   },
 
+  
+  // Admin section
   {
+    path: "/admin",
     element: (
       <ProtectedRoute allowedRoles={["SYSTEM_ADMIN"]}>
         <AdminLayout />
       </ProtectedRoute>
     ),
     children: [
-      {
-        path: "/admin/dashboard",
-        element: <AdminDashboard />,
-      },
-      {
-        path: "/admin/manage-users",
-        element: <ManageUsers />,
-      },
+      { index: true, element: <Dashboard /> },
+      { path: "manage-stores", element: <ManageStores /> },
+      { path: "manage-users", element: <ManageUsers /> },
+      { path: "add-user", element: <AddUser /> },
+      { path: "add-store", element: <AddStore /> },
     ],
   },
 
+  // Owner section
   {
+    path: "/owner",
     element: (
       <ProtectedRoute allowedRoles={["STORE_OWNER"]}>
         <StoreOwnerLayout />
       </ProtectedRoute>
     ),
     children: [
-      {
-        path: "/owner/dashboard",
-        element: <OwnerDashboard />,
-      },
-      {
-        path: "/update-password",
-        element: <UpdatePassword />,
-      },
+      { index: true, element: <OwnerDashboard /> },
+      { path: "dashboard", element: <OwnerDashboard /> },
     ],
-  },
-
-  {
-    path: "/unauthorized",
-    element: <Unauthorized />,
-  },
-  {
-    path: "*",
-    element: <NotFound />,
   },
 ]);
 
