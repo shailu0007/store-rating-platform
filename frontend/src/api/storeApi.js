@@ -28,13 +28,18 @@ const storeApi = {
     return res.data;
   },
 
-getRatings: async (storeId, { page = 1, limit = 10, q = '', userId } = {}) => {
-  const params = { page, limit, q };
-  if (userId) params.userId = userId; // ✅ add userId filter if provided
-  const res = await axios.get(`/api/stores/${storeId}/ratings`, { params });
-  return res.data;
-},
+  getRatings: async (storeId, { page = 1, limit = 10, q = '', userId } = {}) => {
+    const params = { page, limit, q };
+    if (userId) params.userId = userId;
+    const res = await axios.get(`/api/stores/${storeId}/ratings`, { params });
+    return res.data;
+  },
 
+  // ✅ Add this new API
+  submitRating: async (storeId, { rating, comment }) => {
+    const res = await axios.post(`/api/stores/${storeId}/ratings`, { rating, comment });
+    return res.data;
+  },
 };
 
 export default storeApi;

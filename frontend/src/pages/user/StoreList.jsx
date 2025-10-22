@@ -1,111 +1,89 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
-import { createColumnHelper } from '@tanstack/react-table';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Table from '../../components/common/Table';
 import Loader from '../../components/common/Loader';
 import storeApi from '../../api/storeApi';
 
-const colHelper = createColumnHelper();
-
 const StoreList = () => {
   const [rows, setRows] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [loadingFirst, setLoadingFirst] = useState(true); // start with true for initial load
+  const [loading, setLoading] = useState(true);
 
-  // Table columns
-  const columns = useMemo(() => [
-    colHelper.accessor('name', {
-      header: 'Store',
-      cell: info => <div className="font-medium text-gray-800">{info.getValue()}</div>
-    }),
-    colHelper.accessor('address', {
-      header: 'Address',
-      cell: info => <div className="max-w-xs text-sm text-gray-600 truncate">{info.getValue()}</div>
-    }),
-    colHelper.accessor('category', { header: 'Category' }),
-    colHelper.accessor('avg_rating', {
-      header: 'Avg',
-      cell: info => {
-        const v = info.getValue();
-        return v ? (v.toFixed ? v.toFixed(1) : v) : '—';
-      }
-    }),
-    colHelper.display({
-      id: 'userRating',
-      header: 'Your Rating',
-      cell: ({ row }) => {
-        const r = row.original.userRating ?? row.original.user_rating ?? null;
-        return r ? <div className="text-yellow-500 font-semibold">{r}</div> : <div className="text-sm text-gray-500">—</div>;
-      }
-    }),
-    colHelper.display({
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => (
-        <div className="flex gap-2">
-          <Link to={`/stores/${row.original.id}`} className="text-indigo-600 hover:underline">View</Link>
-        </div>
-      )
-    })
-  ], []);
+ const fetchData = async () => {
+  try {
+    const res = await storeApi.list({ page: 1, limit: 50, q: '' });
+    console.log("API Response:", res);
 
-  // Fetch data function
-  const fetchData = useCallback(async ({ pageIndex, pageSize, globalFilter }) => {
-    try {
-      const res = await storeApi.list({
-        page: pageIndex + 1,
-        limit: pageSize,
-        q: globalFilter,
-      });
+    // ✅ Handle both possible shapes
+    const data = res.data?.data ?? res?.data ?? res ?? [];
+    const finalData = Array.isArray(data) ? data : [];
 
-      const payload = res?.data ?? res ?? {};
-      const data = payload.data ?? payload.rows ?? [];
-      const totalCount = payload.total ?? payload.totalCount ?? data.length;
+    setRows(finalData);
+  } catch (err) {
+    console.error("Failed to fetch stores", err);
+    setRows([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
-      const normalized = data.map(r => ({
-        ...r,
-        avg_rating: r.avg_rating ?? r.averageRating ?? r.avgRating ?? r.rating,
-      }));
 
-      setRows(normalized);
-      setTotal(totalCount);
-
-      return { rows: normalized, totalCount };
-    } catch (err) {
-      console.error("Failed to fetch stores", err);
-      setRows([]);
-      setTotal(0);
-      return { rows: [], totalCount: 0 };
-    }
+  useEffect(() => {
+    fetchData();
   }, []);
 
-  // Initial fetch on mount
-  useEffect(() => {
-    const loadInitialData = async () => {
-      setLoadingFirst(true);
-      await fetchData({ pageIndex: 0, pageSize: 10, globalFilter: '' });
-      setLoadingFirst(false);
-    };
-    loadInitialData();
-  }, [fetchData]);
-
   return (
-    <div>
+    <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Stores</h1>
       </div>
 
-      {loadingFirst ? (
+      {loading ? (
         <Loader />
+      ) : rows.length === 0 ? (
+        <div className="text-gray-500 text-center py-10">No stores found.</div>
       ) : (
-        <Table
-          columns={columns}
-          data={rows}
-          serverSide
-          fetchData={fetchData}
-          totalCount={total}
-          initialPageSize={10}
-        />
+        <div className="overflow-x-auto bg-white shadow rounded-lg">
+          <table className="min-w-full border-collapse">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="text-left px-4 py-2 border-b">Store</th>
+                <th className="text-left px-4 py-2 border-b">Address</th>
+                <th className="text-left px-4 py-2 border-b">Category</th>
+                <th className="text-left px-4 py-2 border-b">Avg Rating</th>
+                <th className="text-left px-4 py-2 border-b">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+  {rows.map((store) => (
+    <tr key={store.id} className="hover:bg-gray-50">
+      <td className="px-4 py-2 border-b font-medium text-gray-800">
+        {store.name}
+      </td>
+      <td className="px-4 py-2 border-b text-sm text-gray-600 max-w-xs truncate">
+        {store.address}
+      </td>
+      <td className="px-4 py-2 border-b text-gray-700">
+        {store.category || '—'}
+      </td>
+      <td className="px-4 py-2 border-b text-gray-700">
+        {store.avg_rating && !isNaN(store.avg_rating)
+          ? Number(store.avg_rating).toFixed(1)
+          : '—'}
+      </td>
+
+      <td className="px-4 py-2 border-b">
+        <Link
+          to={`/stores/${store.id}`}
+          className="text-indigo-600 hover:underline"
+        >
+          View
+        </Link>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
+          </table>
+        </div>
       )}
     </div>
   );

@@ -62,7 +62,7 @@ const Navbar = ({ currentUser, onLogout }) => {
             {currentUser ? (
               <button
                 onClick={onLogout}
-                className="flex items-center gap-2 bg-red-500 text-white px-3 py-1.5 rounded-md hover:bg-red-600 transition"
+                className="cursor-pointer flex items-center gap-2 bg-red-500 text-white px-3 py-1.5 rounded-md hover:bg-red-600 transition"
               >
                 <LogOut size={16} />
                 Logout
@@ -117,7 +117,7 @@ const Navbar = ({ currentUser, onLogout }) => {
             {currentUser ? (
               <button
                 onClick={() => { toggleMenu(); onLogout?.(); }}
-                className="flex items-center gap-2 text-red-600 mt-2"
+                className="cursor-pointer flex items-center gap-2 text-red-600 mt-2"
               >
                 <LogOut size={16} /> Logout
               </button>

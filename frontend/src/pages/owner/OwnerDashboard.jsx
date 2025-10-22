@@ -30,10 +30,12 @@ const OwnerDashboard = () => {
       setError('');
       try {
         // ask backend for stores filtered by ownerId
-        const res = await storeApi.list({ ownerId: currentUser.id, limit: 1 });
+        const res = await storeApi.list({ ownerId: currentUser.id, limit: 10 });
 
         const payload = res?.data ?? res ?? {};
+  
         const rows = payload.data ?? payload.rows ?? (Array.isArray(payload) ? payload : []);
+              console.log("payload",payload)
         const first = rows[0] ?? null;
         if (!first) {
           if (mounted) setError('No store found for this owner yet.');
@@ -85,7 +87,7 @@ const OwnerDashboard = () => {
         <div className="flex gap-2">
           <button
             onClick={() => navigate('/owner/add-store')}
-            className="inline-flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
           >
             <Plus size={16} /> Add Store
           </button>
@@ -124,14 +126,14 @@ const OwnerDashboard = () => {
 
           <div>
             <h2 className="text-lg font-semibold mb-3">Ratings for your store</h2>
-            <Table
+            {/* <Table
               columns={columns}
               data={stableEmptyData}
               serverSide
               fetchData={fetchRatings}
               totalCount={0}
               initialPageSize={10}
-            />
+            /> */}
           </div>
         </>
       )}

@@ -30,7 +30,7 @@ const Button = ({
       onClick={onClick}
       disabled={disabled}
       className={clsx(
-        'inline-flex items-center justify-center rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 transition',
+        'cursor-pointer inline-flex items-center justify-center rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 transition',
         VARIANT_CLASSES[variant],
         SIZE_CLASSES[size],
         disabled ? 'opacity-60 cursor-not-allowed' : '',

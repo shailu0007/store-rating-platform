@@ -53,7 +53,7 @@ const ManageUsers = () => {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Manage Users</h1>
-        <Link to="/admin/add-user" className="text-indigo-600 hover:underline">Add user</Link>
+        <Link to="/admin/add-user" className="cursor-pointer text-indigo-600 hover:underline">Add user</Link>
       </div>
 
       <Table columns={columns} data={[]} serverSide fetchData={fetchData} totalCount={total} initialPageSize={10} />

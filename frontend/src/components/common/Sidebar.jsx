@@ -51,7 +51,7 @@ const Sidebar = () => {
 
   const ownerLinks = useMemo(() => ([
     { to: '/owner', icon: <BarChart2 size={16} />, label: 'Owner Dashboard' },
-    { to: '/owner/my-store', icon: <ShoppingBag size={16} />, label: 'My Store' },
+    // { to: '/owner/my-store', icon: <ShoppingBag size={16} />, label: 'My Store' },
   ]), []);
 
   const userLinks = useMemo(() => ([
@@ -114,7 +114,7 @@ const Sidebar = () => {
             </SidebarItem>
           ))}
 
-          <div className="mt-4 border-t pt-4">
+          {/* <div className="mt-4 border-t pt-4">
             <SidebarItem to="/profile">
               <User size={16} />
               {!collapsed && <span>Profile</span>}
@@ -124,7 +124,7 @@ const Sidebar = () => {
               <Settings size={16} />
               {!collapsed && <span>Settings</span>}
             </SidebarItem>
-          </div>
+          </div> */}
         </nav>
 
         <div className="px-3 py-3 border-t">
