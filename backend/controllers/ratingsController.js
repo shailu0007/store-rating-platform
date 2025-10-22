@@ -31,9 +31,9 @@ export const createOrUpdate = async (req, res, next) => {
     if (!store) return error(res, 'Store not found', 404);
 
     const { rating, comment } = req.body;
-    const created = await ratingModel.upsertByUserAndStore({ userId, storeId, rating, comment });
+    const created = await RatingModel.upsertByUserAndStore({ userId, storeId, rating, comment });
 
-    const aggregate = await storeModel.getAggregate(storeId);
+    const aggregate = await StoreModel.getAggregate(storeId);
 
     return success(res, { rating: created, aggregate }, 'Rating submitted', 200);
   } catch (err) {
@@ -52,7 +52,7 @@ export const update = async (req, res, next) => {
       if (!Number.isInteger(rating) || rating < 1 || rating > 5) return error(res, 'Invalid rating value', 400);
     }
 
-    const existing = await ratingModel.findById(ratingId);
+    const existing = await RatingModel.findById(ratingId);
     if (!existing) return error(res, 'Rating not found', 404);
     if (existing.store_id !== storeId && existing.store_id !== existing.store_id) {
       return error(res, 'Rating does not belong to the store', 400);
@@ -64,8 +64,8 @@ export const update = async (req, res, next) => {
     const isAdmin = requester.role === 'SYSTEM_ADMIN';
     if (!isOwner && !isAdmin) return error(res, 'Forbidden', 403);
 
-    const updated = await ratingModel.update(ratingId, { rating, comment });
-    const aggregate = await storeModel.getAggregate(storeId);
+    const updated = await RatingModel.update(ratingId, { rating, comment });
+    const aggregate = await StoreModel.getAggregate(storeId);
 
     return success(res, { rating: updated, aggregate }, 'Rating updated', 200);
   } catch (err) {
@@ -79,7 +79,7 @@ export const remove = async (req, res, next) => {
     const ratingId = parseInt(req.params.ratingId, 10);
     if (!storeId || !ratingId) return error(res, 'Invalid parameters', 400);
 
-    const existing = await ratingModel.findById(ratingId);
+    const existing = await RatingModel.findById(ratingId);
     if (!existing) return error(res, 'Rating not found', 404);
 
     const requester = req.user;
@@ -88,8 +88,8 @@ export const remove = async (req, res, next) => {
     const isAdmin = requester.role === 'SYSTEM_ADMIN';
     if (!isOwner && !isAdmin) return error(res, 'Forbidden', 403);
 
-    const ok = await ratingModel.remove(ratingId);
-    const aggregate = await storeModel.getAggregate(storeId);
+    const ok = await RatingModel.remove(ratingId);
+    const aggregate = await StoreModel.getAggregate(storeId);
     return success(res, { removed: ok, aggregate }, 'Rating removed', 200);
   } catch (err) {
     next(err);
